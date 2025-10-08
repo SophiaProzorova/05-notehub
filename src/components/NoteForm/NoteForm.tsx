@@ -30,7 +30,7 @@ const NoteForm = (props: NoteFormProps) => {
             props.onClose();
         },
         onError(error) {
-        toast.error(error.message)
+            toast.error(error.message)
         },
     })
 

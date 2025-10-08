@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import { fetchNotes } from "../../services/noteService";
 import NoteList from '../NoteList/NoteList';
 import Pagination from '../Pagination/Pagination';
@@ -29,15 +29,12 @@ function App() {
     updateSearchQuery(e);
   }
 
-  const { data, isLoading, isError } = useQuery({
+  const { data } = useQuery({
     queryKey: ['notes', currentPage, searchQuery],
     queryFn: () => fetchNotes(searchQuery, currentPage),
-    placeholderData: keepPreviousData
+    placeholderData: keepPreviousData,
   })
 
-  if (isLoading) toast.loading("Loading...");
-  if (isError) toast.error("Ooops...Something went wrong!")
-    
   const totalPages = data?.totalPages ?? 0;
   const notes: Note[] = data?.notes ?? [];
 
