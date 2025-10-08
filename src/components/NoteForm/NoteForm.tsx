@@ -24,15 +24,7 @@ const NoteForm = (props: NoteFormProps) => {
     const queryClient = useQueryClient();
 
     const addNewNoteMutation = useMutation({
-        mutationFn: async ({...note}: NoteFormValues) => {
-        toast.promise(
-            createNote(note),
-            {
-                loading: 'Saving...',
-                success: <b>The note is saved!</b>,
-                error: (error)=><b>Could not save the note. Error: {error.message}</b>,
-            });
-        },
+        mutationFn: async ({...note}: NoteFormValues) => createNote(note),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['note']});
             props.onClose();
@@ -59,7 +51,7 @@ const NoteForm = (props: NoteFormProps) => {
                     <label htmlFor={`${fieldId}-content`}>Content</label>
                     <Field
                         as="textarea"
-                        id="content"
+                        id={`${fieldId}-content`}
                         name="content"
                         rows={8}
                         className={css.textarea}

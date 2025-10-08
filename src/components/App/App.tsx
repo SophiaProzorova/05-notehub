@@ -10,36 +10,36 @@ import { useDebouncedCallback } from 'use-debounce';
 
 import css from './App.module.css';
 import NoteForm from '../NoteForm/NoteForm';
+import type { Note } from '../../types/note';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const updateSearchQuery = useDebouncedCallback((e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value), 300);
+  const updateSearchQuery = useDebouncedCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  }, 300);
 
   const openModal = () =>  setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   const handleSearchSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateSearchQuery(e);
-    setCurrentPage(1);
   }
 
-  const { data } = useQuery({
-    queryKey: ['note', currentPage, searchQuery],
-    queryFn: () => toast.promise(
-      fetchNotes(searchQuery, currentPage),
-      {
-        loading: "Loading",
-        error: (error) => <b>Something went wrong. Error: {error}</b>
-      }
-    ),
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['notes', currentPage, searchQuery],
+    queryFn: () => fetchNotes(searchQuery, currentPage),
     placeholderData: keepPreviousData
   })
 
+  if (isLoading) toast.loading("Loading...");
+  if (isError) toast.error("Ooops...Something went wrong!")
+    
   const totalPages = data?.totalPages ?? 0;
-  const notes = data?.notes ?? [];
+  const notes: Note[] = data?.notes ?? [];
 
   return (
     <div className={css.app}>
@@ -50,7 +50,7 @@ function App() {
         <button className={css.button} onClick={openModal}>Create note +</button>
       </header>
       {isModalOpen && <Modal onClose={closeModal}><NoteForm onClose={closeModal}/></Modal>}
-      {notes?.length > 0 && <NoteList noteList={notes} />}
+      {notes?.length > 0 && <NoteList notes={notes} />}
     </div>
   )
 }

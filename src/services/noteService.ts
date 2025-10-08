@@ -6,16 +6,8 @@ interface FetchNotesResponse {
     totalPages: number
 }
 
-interface CreateNoteResponse {
-    note: Note
-}
-
-interface DeleteNoteResponse {
-    note: Note
-}
-
 const noteHubAPIUrl = `https://notehub-public.goit.study/api/notes`;
-const API_KEY = import.meta.env.VITE_API_KEY;
+const API_KEY = import.meta.env.VITE_NOTEHUB_TOKEN;
 const headers = {
     'Content-Type': 'application/json',
     accept: 'application/json',
@@ -45,14 +37,14 @@ export const  fetchNotes = async (search: string, page: number): Promise<FetchNo
 };
 
 
-export const createNote = async ({title, content, tag}: {title: string, content: string, tag: string}): Promise<CreateNoteResponse> => {
+export const createNote = async ({title, content, tag}: {title: string, content: string, tag: string}): Promise<Note> => {
     const params = {
         title: title,
         content: content,
         tag: tag
     }
 
-    const response =  await axios.post<CreateNoteResponse>(
+    const response =  await axios.post<Note>(
         noteHubAPIUrl,
         params,
         {headers}
@@ -61,10 +53,10 @@ export const createNote = async ({title, content, tag}: {title: string, content:
     return response.data;
 };
 
-export const deleteNote = async (id: Note["id"]): Promise<DeleteNoteResponse> => {
-    const url = `${noteHubAPIUrl}/${id}`;
+export const deleteNote = async (note: Note): Promise<Note> => {
+    const url = `${noteHubAPIUrl}/${note.id}`;
 
-    const response = await axios.delete<DeleteNoteResponse>(
+    const response = await axios.delete<Note>(
         url,
         {headers: headers}
     );
