@@ -1,12 +1,16 @@
 import { useId } from "react";
+import { toast } from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createNote } from "../../services/noteService";
 import { type NoteFormValues } from "../../types/note";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+
 import { Schema } from "./FormSchema";
+
 import css from "./NoteForm.module.css";
 
 export interface NoteFormProps {
-    onCancel: () => void,
-    onFormSubmit: ({title, content, tag}: NoteFormValues) => Promise<void>
+    onClose: () => void,
 }
 
 const initialValues: NoteFormValues = {
@@ -15,14 +19,34 @@ const initialValues: NoteFormValues = {
     tag: "Todo",
 }
 
-const NoteForm = ({ onCancel, onFormSubmit }: NoteFormProps) => {
+const NoteForm = (props: NoteFormProps) => {
     const fieldId = useId();
+    const queryClient = useQueryClient();
+
+    const addNewNoteMutation = useMutation({
+        mutationFn: async ({...note}: NoteFormValues) => {
+        toast.promise(
+            createNote(note),
+            {
+                loading: 'Saving...',
+                success: <b>The note is saved!</b>,
+                error: (error)=><b>Could not save the note. Error: {error.message}</b>,
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['note']});
+            props.onClose();
+        },
+        onError(error) {
+        toast.error(error.message)
+        },
+    })
 
     return (
         <Formik 
             initialValues={initialValues} 
             validationSchema={Schema}
-            onSubmit={onFormSubmit}
+            onSubmit={(values)=>addNewNoteMutation.mutate(values)}
         >
             <Form className={css.form}>
                 <div className={css.formGroup}>
@@ -56,7 +80,7 @@ const NoteForm = ({ onCancel, onFormSubmit }: NoteFormProps) => {
                 </div>
 
                 <div className={css.actions}>
-                    <button type="button" className={css.cancelButton} onClick={onCancel}>
+                    <button type="button" className={css.cancelButton} onClick={props.onClose}>
                         Cancel
                     </button>
                     <button

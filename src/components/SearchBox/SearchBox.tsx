@@ -1,10 +1,10 @@
 import styles from "./SearchBox.module.css";
 
-interface SearchBarProps {
+interface SearchBoxProps {
     onChange: (e: React.ChangeEvent<HTMLInputElement>)=> void,
 }
 
-const SearchBar = ({ onChange }: SearchBarProps) => {
+const SearchBox = ({ onChange }: SearchBoxProps) => {
 
   return (
         <input
@@ -17,4 +17,4 @@ const SearchBar = ({ onChange }: SearchBarProps) => {
   )
 }
 
-export default SearchBar
+export default SearchBox

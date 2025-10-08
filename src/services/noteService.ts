@@ -11,8 +11,7 @@ interface CreateNoteResponse {
 }
 
 interface DeleteNoteResponse {
-    notes: Note[],
-    totalPages: number
+    note: Note
 }
 
 const noteHubAPIUrl = `https://notehub-public.goit.study/api/notes`;
@@ -33,7 +32,7 @@ export const  fetchNotes = async (search: string, page: number): Promise<FetchNo
         }
     }
 
-    const response = await axios.get(
+    const response = await axios.get<FetchNotesResponse>(
         noteHubAPIUrl,
         options
     );    
@@ -53,27 +52,22 @@ export const createNote = async ({title, content, tag}: {title: string, content:
         tag: tag
     }
 
-    const response =  await axios.post(
+    const response =  await axios.post<CreateNoteResponse>(
         noteHubAPIUrl,
         params,
         {headers}
     );
     
-    return ({
-        note: response.data
-    })
+    return response.data;
 };
 
 export const deleteNote = async (id: Note["id"]): Promise<DeleteNoteResponse> => {
     const url = `${noteHubAPIUrl}/${id}`;
 
-    const response = await axios.delete(
+    const response = await axios.delete<DeleteNoteResponse>(
         url,
         {headers: headers}
     );
 
-    return ({
-        notes: response.data.notes,
-        totalPages: response.data.totalPages
-    })
+    return response.data;
 };
